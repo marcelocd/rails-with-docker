@@ -6,11 +6,8 @@ services:
     command: postgres -p 54321
     volumes:
       - ./db_data:/data/postgres
-    environment:
-      - POSTGRES_DB=my_app_development
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password123456789
-      - PGDATA=/data/postgres
+    env_file:
+      - .env
     networks:
       - my-app-network
 
@@ -31,13 +28,8 @@ services:
     volumes:
       - .:/rails
       - /rails/tmp
-    environment:
-      - REDIS_URL_SIDEKIQ=redis://redis:6379/1
-      - POSTGRES_HOST=postgres
-      - POSTGRES_DB=my_app_development
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password123456789
-      - POSTGRES_PORT=54321
+    env_file:
+      - .env
     networks:
       - my-app-network
 
@@ -53,14 +45,8 @@ services:
       - .:/rails
       - /rails/tmp
       - /rails/db
-    environment:
-      - RAILS_ENV=development
-      - POSTGRES_HOST=postgres
-      - POSTGRES_DB=my_app_development
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password123456789
-      - POSTGRES_PORT=54321
-      - REDIS_URL_SIDEKIQ=redis://redis:6379/1
+    env_file:
+      - .env
     networks:
       - my-app-network
 
