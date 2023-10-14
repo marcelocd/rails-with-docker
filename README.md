@@ -31,6 +31,8 @@ cd rails-with-docker
 docker-compose up --build
 ```
 
+4. After the building process is done, access the application in your browser at `localhost:3000`.
+
 ## Included Tools and Technologies
 
 - **Ruby on Rails 7.1**: Leverage the latest features and improvements in Rails for your projects.
