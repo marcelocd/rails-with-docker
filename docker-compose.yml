@@ -1,0 +1,73 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:14.2-alpine
+    container_name: postgres_container
+    command: postgres -p 54321
+    volumes:
+      - ./db_data:/data/postgres
+    environment:
+      - POSTGRES_DB=my_app_development
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password123456789
+      - PGDATA=/data/postgres
+    networks:
+      - my-app-network
+
+  redis:
+    image: redis:7.2.1-alpine
+    command: redis-server
+    volumes:
+      - ./redis:/data
+    networks:
+      - my-app-network
+
+  sidekiq:
+    depends_on:
+      - postgres
+      - redis
+    build: .
+    command: bundle exec sidekiq
+    volumes:
+      - .:/rails
+      - /rails/tmp
+    environment:
+      - REDIS_URL_SIDEKIQ=redis://redis:6379/1
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=my_app_development
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password123456789
+      - POSTGRES_PORT=54321
+    networks:
+      - my-app-network
+
+  web:
+    depends_on:
+      - postgres
+      - redis
+    build: .
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/rails
+      - /rails/tmp
+      - /rails/db
+    environment:
+      - RAILS_ENV=development
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=my_app_development
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password123456789
+      - POSTGRES_PORT=54321
+      - REDIS_URL_SIDEKIQ=redis://redis:6379/1
+    networks:
+      - my-app-network
+
+volumes:
+  postgres:
+  redis:
+
+networks:
+  my-app-network:
+    driver: bridge
